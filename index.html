@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NumPy — Complete Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&family=Syne+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg: #0a0d0f;
+  --surface: #111518;
+  --card: #161b20;
+  --border: #1e262e;
+  --accent: #00d4aa;
+  --accent2: #f7931a;
+  --accent3: #7c6af7;
+  --text: #d4dde8;
+  --muted: #55697a;
+  --kw: #ff7b72;
+  --str: #a5d6ff;
+  --fn: #d2a8ff;
+  --num: #79c0ff;
+  --cm: #4a6070;
+  --header-h: 60px;
+  --repl-bg: #0d1117;
+  --repl-prompt: #7c6af7;
+  --repl-code: #c9d1d9;
+  --repl-out: #56d3a0;
+  --repl-out-bg: #081811;
+  --repl-dim: #556070;
+  /* explanation */
+  --exp-bg: #0f1923;
+  --exp-border: rgba(247,147,26,.18);
+  --exp-text: #c8d8e8;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--text); font-family:'Syne',sans-serif; font-size:15px; line-height:1.7; }
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+/* ─── HEADER ─── */
+header {
+  position:fixed; top:0; left:0; right:0; height:var(--header-h);
+  background:rgba(10,13,15,.93); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; padding:0 2rem; z-index:1000; gap:1.5rem;
+}
+.logo { font-family:'Syne Mono',monospace; font-size:1.05rem; color:var(--accent); letter-spacing:.05em; flex-shrink:0; }
+.logo span { color:var(--muted); }
+.search-wrap { flex:1; max-width:340px; position:relative; }
+.search-wrap input {
+  width:100%; background:var(--surface); border:1px solid var(--border); border-radius:6px;
+  padding:.38rem 1rem .38rem 2.3rem; color:var(--text);
+  font-family:'IBM Plex Mono',monospace; font-size:.78rem; outline:none; transition:border-color .2s;
+}
+.search-wrap input:focus { border-color:var(--accent); }
+.search-wrap i { position:absolute; left:.7rem; top:50%; transform:translateY(-50%); color:var(--muted); font-size:.72rem; }
+.search-wrap input::placeholder { color:var(--muted); }
+
+/* global explain toggle in header */
+.global-toggle {
+  display:flex; align-items:center; gap:.5rem;
+  font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--muted);
+  cursor:pointer; border:1px solid var(--border); border-radius:6px; padding:.3rem .75rem;
+  transition:all .2s; white-space:nowrap; user-select:none;
+}
+.global-toggle:hover { border-color:var(--accent2); color:var(--accent2); }
+.global-toggle.all-open { border-color:var(--accent2); color:var(--accent2); background:rgba(247,147,26,.05); }
+.global-toggle i { font-size:.65rem; }
+
+.ver-badge { margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--muted); border:1px solid var(--border); padding:.18rem .55rem; border-radius:4px; }
+
+/* ─── LAYOUT ─── */
+.container { display:grid; grid-template-columns:256px 1fr; min-height:100vh; padding-top:var(--header-h); }
+
+/* ─── SIDEBAR ─── */
+aside {
+  position:sticky; top:var(--header-h); height:calc(100vh - var(--header-h));
+  overflow-y:auto; border-right:1px solid var(--border); padding:1.2rem 0; background:var(--surface);
+}
+.nav-label { font-family:'IBM Plex Mono',monospace; font-size:.62rem; color:var(--muted); letter-spacing:.14em; text-transform:uppercase; padding:.55rem 1.3rem .25rem; }
+aside a { display:flex; align-items:center; gap:.55rem; padding:.35rem 1.3rem; color:var(--text); text-decoration:none; font-size:.8rem; border-left:2px solid transparent; transition:all .14s; }
+aside a:hover, aside a.active { color:var(--accent); border-left-color:var(--accent); background:rgba(0,212,170,.04); }
+aside a i { width:13px; color:var(--muted); font-size:.72rem; }
+aside a:hover i, aside a.active i { color:var(--accent); }
+
+/* ─── MAIN ─── */
+main { padding:2.5rem 3rem; max-width:980px; }
+
+/* ─── HERO ─── */
+.hero { margin-bottom:3rem; padding-bottom:2.5rem; border-bottom:1px solid var(--border); }
+.eyebrow { font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--accent); letter-spacing:.12em; text-transform:uppercase; margin-bottom:.7rem; }
+.hero h1 { font-size:2.9rem; font-weight:800; line-height:1.05; background:linear-gradient(130deg,#fff 25%,var(--accent) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:.9rem; }
+.hero p { color:var(--muted); max-width:560px; font-size:.92rem; line-height:1.85; }
+.badges { display:flex; gap:.55rem; margin-top:1.1rem; flex-wrap:wrap; }
+.badge { font-family:'IBM Plex Mono',monospace; font-size:.68rem; padding:.18rem .65rem; border-radius:4px; border:1px solid var(--border); color:var(--muted); }
+.badge.g { border-color:rgba(0,212,170,.3); color:var(--accent); background:rgba(0,212,170,.05); }
+.badge.o { border-color:rgba(247,147,26,.3); color:var(--accent2); background:rgba(247,147,26,.05); }
+.badge.p { border-color:rgba(124,106,247,.3); color:var(--accent3); background:rgba(124,106,247,.05); }
+
+/* ─── SECTION ─── */
+section { margin-bottom:3.2rem; scroll-margin-top:calc(var(--header-h) + 1.5rem); }
+.sec-head { display:flex; align-items:center; gap:.75rem; margin-bottom:1.4rem; padding-bottom:.75rem; border-bottom:1px solid var(--border); }
+.sec-icon { width:32px; height:32px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:.82rem; flex-shrink:0; }
+.ig { background:rgba(0,212,170,.1); color:var(--accent); }
+.io { background:rgba(247,147,26,.1); color:var(--accent2); }
+.ip { background:rgba(124,106,247,.1); color:var(--accent3); }
+.ib { background:rgba(121,192,255,.1); color:var(--num); }
+.ir { background:rgba(255,123,114,.1); color:var(--kw); }
+section h2 { font-size:1.15rem; font-weight:700; color:#fff; }
+section h3 { font-size:.82rem; font-weight:600; color:var(--accent); text-transform:uppercase; letter-spacing:.09em; margin:1.4rem 0 .65rem; font-family:'IBM Plex Mono',monospace; }
+p { color:var(--text); margin-bottom:.75rem; font-size:.88rem; }
+p code, td code, li code {
+  font-family:'IBM Plex Mono',monospace; font-size:.76em;
+  background:rgba(0,212,170,.08); color:var(--accent);
+  padding:.08em .38em; border-radius:3px; white-space:nowrap;
+}
+
+/* ─── EXPLANATION BLOCK ─── */
+.exp-wrap { margin:0; }
+
+/* The toggle button that sits between repl and explanation */
+.exp-toggle {
+  display:inline-flex; align-items:center; gap:.45rem;
+  margin:.55rem 0 0 0;
+  font-family:'IBM Plex Mono',monospace; font-size:.68rem;
+  color:var(--muted);
+  cursor:pointer;
+  border:1px solid var(--border);
+  border-radius:5px;
+  padding:.22rem .65rem;
+  background:transparent;
+  transition:all .18s;
+  user-select:none;
+}
+.exp-toggle:hover { color:var(--accent2); border-color:var(--accent2); background:rgba(247,147,26,.04); }
+.exp-toggle.open { color:var(--accent2); border-color:var(--accent2); background:rgba(247,147,26,.05); }
+.exp-toggle .arrow { font-size:.6rem; transition:transform .2s; }
+.exp-toggle.open .arrow { transform:rotate(90deg); }
+
+/* The explanation panel itself */
+.exp-panel {
+  display:none;
+  background:var(--exp-bg);
+  border:1px solid var(--exp-border);
+  border-radius:8px;
+  padding:1rem 1.2rem;
+  margin:.4rem 0 .8rem 0;
+  font-size:.85rem;
+  line-height:1.85;
+  color:var(--exp-text);
+  animation:slideIn .18s ease;
+}
+.exp-panel.open { display:block; }
+
+@keyframes slideIn {
+  from { opacity:0; transform:translateY(-6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* styled list inside explanation */
+.exp-panel ul { padding-left:1.2rem; margin:.4rem 0; }
+.exp-panel li { margin:.25rem 0; color:var(--exp-text); }
+.exp-panel li::marker { color:var(--accent2); }
+.exp-panel strong { color:#fff; font-weight:600; }
+.exp-panel .hl { color:var(--accent); font-family:'IBM Plex Mono',monospace; font-size:.82em; background:rgba(0,212,170,.08); padding:.05em .35em; border-radius:3px; }
+.exp-panel .hl2 { color:var(--accent2); font-family:'IBM Plex Mono',monospace; font-size:.82em; background:rgba(247,147,26,.08); padding:.05em .35em; border-radius:3px; }
+.exp-panel .note-line {
+  display:flex; gap:.55rem; align-items:flex-start;
+  background:rgba(124,106,247,.07); border-left:2px solid var(--accent3);
+  border-radius:0 5px 5px 0; padding:.45rem .75rem; margin:.6rem 0; font-size:.82rem;
+}
+.exp-panel .note-line i { color:var(--accent3); flex-shrink:0; margin-top:.2rem; font-size:.72rem; }
+
+/* ─── REPL ─── */
+.repl {
+  background:var(--repl-bg); border:1px solid var(--border); border-radius:10px;
+  overflow:hidden; font-family:'IBM Plex Mono',monospace; font-size:.8rem; margin:1rem 0 0 0;
+}
+.repl-header { display:flex; align-items:center; gap:.5rem; padding:.5rem 1rem; background:var(--surface); border-bottom:1px solid var(--border); }
+.dots { display:flex; gap:5px; }
+.dots span { width:9px; height:9px; border-radius:50%; }
+.dr { background:#ff5f57; } .dy { background:#ffbd2e; } .dg { background:#28c840; }
+.repl-lang { font-family:'IBM Plex Mono',monospace; font-size:.65rem; color:var(--muted); margin-left:auto; }
+.repl-body { padding:.7rem 0; }
+.stmt { display:grid; grid-template-columns:auto 1fr; }
+.stmt-code { display:contents; }
+.stmt-code .prompt { color:var(--repl-prompt); padding:.18rem 0 .18rem 1rem; user-select:none; font-size:.78rem; white-space:nowrap; }
+.stmt-code .line { padding:.18rem .5rem .18rem .4rem; color:var(--repl-code); line-height:1.6; }
+.out {
+  grid-column:1/-1; background:var(--repl-out-bg);
+  border-top:1px solid rgba(0,212,170,.08); border-bottom:1px solid rgba(0,212,170,.08);
+  padding:.45rem 1rem .45rem 3.2rem; color:var(--repl-out); line-height:1.75; white-space:pre; font-size:.78rem;
+}
+.stmt-gap { height:.65rem; }
+
+/* syntax */
+.kw{color:var(--kw);} .fn{color:var(--fn);} .st{color:var(--str);}
+.nm{color:var(--num);} .cm{color:var(--cm);font-style:italic;} .at{color:var(--accent);}
+
+/* ─── INFO BOX ─── */
+.box { border-radius:8px; padding:.85rem 1.05rem; margin:.9rem 0; display:flex; gap:.75rem; align-items:flex-start; font-size:.84rem; }
+.box i { flex-shrink:0; margin-top:.15rem; }
+.box.tip { background:rgba(0,212,170,.06); border-left:3px solid var(--accent); }
+.box.tip i { color:var(--accent); }
+.box.warn { background:rgba(247,147,26,.06); border-left:3px solid var(--accent2); }
+.box.warn i { color:var(--accent2); }
+.box.note { background:rgba(124,106,247,.06); border-left:3px solid var(--accent3); }
+.box.note i { color:var(--accent3); }
+
+/* ─── TABLE ─── */
+.tbl-wrap { overflow-x:auto; border-radius:10px; border:1px solid var(--border); margin:.9rem 0; }
+table { width:100%; border-collapse:collapse; font-size:.8rem; }
+thead tr { background:var(--surface); }
+th { font-family:'IBM Plex Mono',monospace; font-size:.68rem; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); padding:.65rem .95rem; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }
+td { padding:.55rem .95rem; border-bottom:1px solid rgba(30,38,46,.5); color:var(--text); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:rgba(255,255,255,.01); }
+td:first-child { font-family:'IBM Plex Mono',monospace; color:var(--fn); font-size:.78rem; }
+
+/* ─── CARDS ─── */
+.cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:.9rem; margin:.9rem 0; }
+.card { background:var(--card); border:1px solid var(--border); border-radius:9px; padding:1rem 1.1rem; transition:border-color .2s,transform .2s; }
+.card:hover { border-color:rgba(0,212,170,.3); transform:translateY(-2px); }
+.card-title { font-family:'IBM Plex Mono',monospace; font-size:.77rem; color:var(--accent); margin-bottom:.35rem; font-weight:600; }
+.card p { font-size:.78rem; color:var(--muted); margin:0; line-height:1.55; }
+
+.two { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+footer { border-top:1px solid var(--border); padding:1.4rem 3rem; color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:.68rem; display:flex; justify-content:space-between; }
+#top { position:fixed; bottom:1.4rem; right:1.4rem; width:34px; height:34px; background:var(--surface); border:1px solid var(--border); border-radius:7px; color:var(--muted); display:flex; align-items:center; justify-content:center; text-decoration:none; font-size:.75rem; transition:all .2s; z-index:999; opacity:0; pointer-events:none; }
+#top.show { opacity:1; pointer-events:all; }
+#top:hover { color:var(--accent); border-color:var(--accent); }
+
+@media(max-width:900px){
+  .container{grid-template-columns:1fr;} aside{display:none;}
+  main{padding:1.4rem;} .two{grid-template-columns:1fr;} .hero h1{font-size:2rem;}
+}
+</style>
+</head><header>
+  <div class="logo">pd<span>.</span>notes</div>
+  <div class="search-wrap">
+    <i class="fa fa-search"></i>
+    <input id="q" type="text" placeholder="Search functions, topics…" autocomplete="off">
+  </div>
+  <div class="global-toggle" id="globalToggle" onclick="toggleAll()">
+    <i class="fa fa-book-open"></i>
+    <span id="globalLabel">Show all explanations</span>
+  </div>
+  <div class="ver-badge">Pandas 2.2 / 2.x</div>
+</header>
+<div class="container">
+<aside>
+  <div class="nav-label">Start</div>
+  <a href="#intro" class="active"><i class="fa fa-home"></i>Introduction</a>
+  <a href="#install"><i class="fa fa-download"></i>Installation</a>
+  <a href="#import"><i class="fa fa-plug"></i>Import &amp; Setup</a>
+  <div class="nav-label">Data Structures</div>
+  <a href="#series"><i class="fa fa-list"></i>Series</a>
+  <a href="#dataframe"><i class="fa fa-table"></i>DataFrame</a>
+  <a href="#numpy-interop"><i class="fa fa-exchange-alt"></i>NumPy Interop</a>
+  <div class="nav-label">Data Exploration</div>
+  <a href="#viewing"><i class="fa fa-eye"></i>Viewing Data</a>
+  <a href="#indexing"><i class="fa fa-crosshairs"></i>Indexing &amp; Slicing</a>
+  <a href="#filtering"><i class="fa fa-filter"></i>Filtering</a>
+  <div class="nav-label">Data Manipulation</div>
+  <a href="#missing"><i class="fa fa-eraser"></i>Missing Data</a>
+  <a href="#grouping"><i class="fa fa-layer-group"></i>Grouping</a>
+  <a href="#merging"><i class="fa fa-link"></i>Merging &amp; Joining</a>
+  <a href="#transform"><i class="fa fa-magic"></i>Transformation</a>
+  <a href="#timeseries"><i class="fa fa-clock"></i>Time Series</a>
+  <div class="nav-label">I/O</div>
+  <a href="#io"><i class="fa fa-file-csv"></i>File I/O</a>
+</aside>
+
+<main>
+
+<!-- ══ HERO ══ -->
+<div class="hero" id="intro">
+  <div class="eyebrow"><i class="fa fa-table"></i> &nbsp;Complete Reference Notes</div>
+  <h1>Pandas</h1>
+  <p>Data analysis and manipulation built on top of NumPy. Fast, powerful, flexible, and easy to use open source data analysis and manipulation tool.</p>
+  <div class="badges">
+    <span class="badge g"><i class="fa fa-table"></i> &nbsp;DataFrames</span>
+    <span class="badge o"><i class="fa fa-bolt"></i> &nbsp;Vectorized</span>
+    <span class="badge p"><i class="fa fa-filter"></i> &nbsp;Data Wrangling</span>
+    <span class="badge"><i class="fa fa-link"></i> &nbsp;NumPy · Matplotlib</span>
+  </div>
+</div>
+
+<!-- ══ INSTALL ══ -->
+<section id="install">
+  <div class="sec-head"><div class="sec-icon ig"><i class="fa fa-download"></i></div><h2>Installation</h2></div>
+  <div class="two">
+    <div>
+      <div class="repl">
+        <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">pip</span></div>
+        <div class="repl-body">
+          <div class="stmt"><div class="stmt-code"><span class="prompt">$&nbsp;</span><span class="line">pip install pandas numpy</span></div><div class="out">Successfully installed numpy-1.26.4 pandas-2.2.0</div></div>
+        </div>
+      </div>
+      <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+      <div class="exp-panel">
+        <strong>pip</strong> installs Pandas and NumPy together. Pandas relies heavily on NumPy arrays under the hood.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ IMPORT ══ -->
+<section id="import">
+  <div class="sec-head"><div class="sec-icon io"><i class="fa fa-plug"></i></div><h2>Import &amp; Setup</h2></div>
+  <div class="repl">
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
+    <div class="repl-body">
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="kw">import</span> pandas <span class="kw">as</span> pd</span></div></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line"><span class="kw">import</span> numpy <span class="kw">as</span> np&nbsp;&nbsp;<span class="cm"># Best friends</span></span></div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">pd.__version__</span></div><div class="out">'2.2.0'</div></div>
+    </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <strong>Why <span class="hl">as pd</span>?</strong> Just like NumPy is <span class="hl">np</span>, Pandas is universally imported as <span class="hl">pd</span>. You should always import both as they work closely together.
+  </div>
+</section>
+
+<!-- ══ SERIES ══ -->
+<section id="series">
+  <div class="sec-head"><div class="sec-icon ig"><i class="fa fa-list"></i></div><h2>Series</h2></div>
+  <div class="repl">
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
+    <div class="repl-body">
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">s = pd.<span class="fn">Series</span>([<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>], index=[<span class="st">'a'</span>, <span class="st">'b'</span>, <span class="st">'c'</span>])</span></div></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">s</span></div>
+      <div class="out">a    10
+b    20
+c    30
+dtype: int64</div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">s[<span class="st">'b'</span>]</span></div><div class="out">20</div></div>
+    </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <p>A <strong>Series</strong> is a one-dimensional array-like object containing a sequence of values and an associated array of data labels, called its <strong>index</strong>.</p>
+    <ul>
+      <li>If no index is specified, a default integer index <span class="hl">(0, 1, 2, ...)</span> is created.</li>
+      <li>Operations between Series automatically align the data based on index labels.</li>
+      <li>Think of it as a fixed-size, ordered dict.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ DATAFRAME ══ -->
+<section id="dataframe">
+  <div class="sec-head"><div class="sec-icon ip"><i class="fa fa-table"></i></div><h2>DataFrame</h2></div>
+  <div class="repl">
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
+    <div class="repl-body">
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df = pd.<span class="fn">DataFrame</span>({</span></div>
+            <div class="stmt-code"><span class="prompt">...</span><span class="line">    <span class="st">'A'</span>: <span class="nm">1.0</span>,</span></div>
+            <div class="stmt-code"><span class="prompt">...</span><span class="line">    <span class="st">'B'</span>: pd.<span class="fn">Timestamp</span>(<span class="st">'20240101'</span>),</span></div>
+            <div class="stmt-code"><span class="prompt">...</span><span class="line">    <span class="st">'C'</span>: pd.<span class="fn">Series</span>(<span class="nm">1</span>, index=list(range(<span class="nm">4</span>)), dtype=<span class="st">'float32'</span>),</span></div>
+            <div class="stmt-code"><span class="prompt">...</span><span class="line">    <span class="st">'D'</span>: np.<span class="fn">array</span>([<span class="nm">3</span>] * <span class="nm">4</span>, dtype=<span class="st">'int32'</span>),</span></div>
+            <div class="stmt-code"><span class="prompt">...</span><span class="line">    <span class="st">'E'</span>: pd.<span class="at">Categorical</span>([<span class="st">'test'</span>, <span class="st">'train'</span>, <span class="st">'test'</span>, <span class="st">'train'</span>])</span></div>
+            <div class="stmt-code"><span class="prompt">...</span><span class="line">})</span></div>
+            <div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df.<span class="at">dtypes</span></span></div>
+            <div class="out">A           float64
+B    datetime64[ns]
+C           float32
+D             int32
+E          category
+dtype: object</div></div>
+    </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <p>A <strong>DataFrame</strong> is a 2-dimensional labeled data structure. You can think of it as a dictionary of Series objects.</p>
+    <ul>
+      <li>Columns can have <strong>different types</strong> (heterogeneous).</li>
+      <li>It has both a row index and a column index.</li>
+      <li>It is the most commonly used pandas object for data analysis.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ NUMPY INTEROP ══ -->
+<section id="numpy-interop">
+  <div class="sec-head"><div class="sec-icon io"><i class="fa fa-exchange-alt"></i></div><h2>NumPy Interoperability</h2></div>
+  <div class="repl">
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
+    <div class="repl-body">
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">arr = np.<span class="fn">array</span>([[<span class="nm">1</span>, <span class="nm">2</span>], [<span class="nm">3</span>, <span class="nm">4</span>]])</span></div></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df = pd.<span class="fn">DataFrame</span>(arr, columns=[<span class="st">'p'</span>, <span class="st">'q'</span>])</span></div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df.<span class="at">values</span>&nbsp;&nbsp;<span class="cm"># Access underlying NumPy array</span></span></div>
+      <div class="out">array([[1, 2],
+       [3, 4]])</div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">np.<span class="fn">log</span>(df[<span class="st">'p'</span>])&nbsp;&nbsp;<span class="cm"># NumPy ufuncs on Series</span></span></div>
+      <div class="out">0    0.000000
+1    1.098612
+Name: p, dtype: float64</div></div>
+    </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <p>Pandas and NumPy are built to dance together.</p>
+    <ul>
+      <li>Use <span class="hl">.values</span> or <span class="hl">.to_numpy()</span> to get a NumPy array back from Pandas.</li>
+      <li>Pandas handles alignment, NumPy handles heavy mathematical lifting.</li>
+      <li>Most NumPy functions can take Pandas objects as inputs and return Pandas objects.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ VIEWING DATA ══ -->
+<section id="viewing">
+  <div class="sec-head"><div class="sec-icon ib"><i class="fa fa-eye"></i></div><h2>Viewing Data</h2></div>
+  <div class="repl">
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
+    <div class="repl-body">
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df.<span class="fn">head</span>(<span class="nm">2</span>)&nbsp;&nbsp;<span class="cm"># First 2 rows</span></span></div>
+      <div class="out">      Name  Age  Score
+0     Anna   28   88.5
+1      Bob   34   92.0</div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df.<span class="fn">describe</span>()&nbsp;&nbsp;<span class="cm"># Summary statistics</span></span></div>
+      <div class="out">             Age      Score
+count   3.000000   3.000000
+mean   30.333333  88.500000
+std     3.214550   3.500000
+min    28.000000  85.000000
+...</div></div>
+    </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><span class="hl">head(n)</span> and <span class="hl">tail(n)</span> are your first line of defense for checking data integrity.</li>
+      <li><span class="hl">info()</span> is crucial for spotting missing values and checking memory usage.</li>
+      <li><span class="hl">describe()</span> gives a statistical bird's-eye view, but note it only includes numeric columns by default.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ INDEXING ══ -->
+<section id="indexing">
+  <div class="sec-head"><div class="sec-icon ig"><i class="fa fa-crosshairs"></i></div><h2>Indexing &amp; Slicing</h2></div>
+  <div class="repl">
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
+    <div class="repl-body">
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df[<span class="st">'Name'</span>]&nbsp;&nbsp;<span class="cm"># Select a column</span></span></div>
+      <div class="out">0       Anna
+1        Bob
+2    Charlie
+Name: Name, dtype: object</div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df.<span class="at">loc</span>[<span class="nm">0</span>]&nbsp;&nbsp;<span class="cm"># Select row by index label</span></span></div>
+      <div class="out">Name      Anna
+Age         28
+Score     88.5
+Name: 0, dtype: object</div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df.<span class="at">iloc</span>[<span class="nm">0</span>:<span class="nm">2</span>, <span class="nm">0</span>:<span class="nm">2</span>]&nbsp;&nbsp;<span class="cm"># Slice by position</span></span></div>
+      <div class="out">   Name  Age
+0  Anna   28
+1   Bob   34</div></div>
+    </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><strong>Square Brackets:</strong> <span class="hl">df['col']</span> selects a single column. <span class="hl">df[['c1', 'c2']]</span> selects multiple.</li>
+      <li><strong>.loc:</strong> Label-based. Use <span class="hl">df.loc[row_label, col_label]</span>. Slicing with <span class="hl">loc</span> is <strong>inclusive</strong> of the end.</li>
+      <li><strong>.iloc:</strong> Position-based. Works exactly like Python lists or NumPy arrays. Slicing with <span class="hl">iloc</span> is <strong>exclusive</strong> of the end.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-info-circle"></i> Prefer <code>.loc</code> or <code>.iloc</code> for explicit selection over chained indexing (like <code>df[row][col]</code>) to avoid the "SettingWithCopy" warning.</div>
+  </div>
+</section>
+
+<!-- ══ FILTERING ══ -->
+<section id="filtering">
+  <div class="sec-head"><div class="sec-icon ip"><i class="fa fa-filter"></i></div><h2>Filtering (Boolean Indexing)</h2></div>
+  <div class="repl">
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
+    <div class="repl-body">
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df[df[<span class="st">'Age'</span>] &gt; <span class="nm">30</span>]</span></div>
+      <div class="out">  Name  Age  Score
+1  Bob   34   92.0</div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df[(df[<span class="st">'Age'</span>] &lt; <span class="nm">30</span>) & (df[<span class="st">'Score'</span>] &gt; <span class="nm">85</span>)]</span></div>
+      <div class="out">   Name  Age  Score
+0  Anna   28   88.5</div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df[df[<span class="st">'Name'</span>].<span class="fn">str</span>.<span class="fn">startswith</span>(<span class="st">'A'</span>)]</span></div>
+      <div class="out">   Name  Age  Score
+0  Anna   28   88.5</div></div>
+    </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <p>Pandas uses boolean vectors to filter data. Key operators:</p>
+    <ul>
+      <li><span class="hl">&amp;</span> (AND), <span class="hl">|</span> (OR), <span class="hl">~</span> (NOT)</li>
+      <li>Always wrap multiple conditions in <span class="hl2">(parentheses)</span> due to operator precedence.</li>
+      <li>The <span class="hl">.str</span> and <span class="hl">.dt</span> accessors are powerful for text and date filtering respectively.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ MISSING DATA ══ -->
+<section id="missing">
+  <div class="sec-head"><div class="sec-icon io"><i class="fa fa-eraser"></i></div><h2>Missing Data</h2></div>
+  <div class="repl">
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
+    <div class="repl-body">
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df.<span class="fn">isna</span>().<span class="fn">sum</span>()&nbsp;&nbsp;<span class="cm"># Count NaNs per column</span></span></div>
+      <div class="out">Name     0
+Age      0
+Score    0
+dtype: int64</div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df.<span class="fn">fillna</span>(<span class="at">value</span>={<span class="st">'Score'</span>: <span class="nm">0</span>, <span class="st">'Age'</span>: <span class="nm">25</span>})</span></div>
+      <div class="out">      Name  Age  Score
+0     Anna   28   88.5
+1      Bob   34   92.0
+2  Charlie   29   85.0</div></div>
+    </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <p>Handling "Not a Number" (NaN) is a core data science task.</p>
+    <ul>
+      <li><span class="hl">isna()</span> returns a boolean mask. Chaining <span class="hl">.sum()</span> is the standard way to check for gaps.</li>
+      <li><span class="hl">dropna()</span> removes rows/columns with missing data. Use <span class="hl">subset=['col']</span> to target specific columns.</li>
+      <li><span class="hl">fillna()</span> provides several strategies (scalar, dict, or method='ffill'/'bfill').</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ GROUPING ══ -->
+<section id="grouping">
+  <div class="sec-head"><div class="sec-icon ig"><i class="fa fa-layer-group"></i></div><h2>Grouping (Split-Apply-Combine)</h2></div>
+  <div class="repl">
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
+    <div class="repl-body">
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df.<span class="fn">groupby</span>(<span class="st">'Age'</span>)[<span class="st">'Score'</span>].<span class="fn">mean</span>()</span></div>
+      <div class="out">Age
+28    88.5
+29    85.0
+34    92.0
+Name: Score, dtype: float64</div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df.<span class="fn">groupby</span>(<span class="st">'Age'</span>).<span class="fn">agg</span>([<span class="st">'min'</span>, <span class="st">'max'</span>, <span class="st">'mean'</span>])</span></div>
+      <div class="out">      Score            
+        min   max  mean
+Age                    
+28     88.5  88.5  88.5
+29     85.0  85.0  85.0
+34     92.0  92.0  92.0</div></div>
+    </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <p>The <strong>Split-Apply-Combine</strong> pattern:</p>
+    <ul>
+      <li><strong>Split:</strong> Data is broken into groups based on key(s).</li>
+      <li><strong>Apply:</strong> A function (mean, sum, custom) is applied to each group.</li>
+      <li><strong>Combine:</strong> Results are merged into a new object.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-lightbulb"></i> Use <code>.agg()</code> for multiple statistics or specific functions per column using a dictionary.</div>
+  </div>
+</section>
+
+<!-- ══ MERGING ══ -->
+<section id="merging">
+  <div class="sec-head"><div class="sec-icon ib"><i class="fa fa-link"></i></div><h2>Merging &amp; Joining</h2></div>
+  <div class="repl">
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
+    <div class="repl-body">
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">pd.<span class="fn">concat</span>([df1, df2], axis=<span class="nm">0</span>)</span></div>
+      <div class="out"># Stacks DataFrames vertically (row-wise)</div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">pd.<span class="fn">merge</span>(left, right, on=<span class="st">'ID'</span>, how=<span class="st">'inner'</span>)</span></div>
+      <div class="out"># Database-style join on the 'ID' column</div></div>
+    </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><span class="hl">concat</span> is for simple stacking (vertical or horizontal).</li>
+      <li><span class="hl">merge</span> is for complex, SQL-like joins. "How" can be 'inner', 'outer', 'left', or 'right'.</li>
+      <li><span class="hl">join</span> is a shortcut for merging on indices.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ FILE I/O ══ -->
+<section id="io">
+  <div class="sec-head"><div class="sec-icon ip"><i class="fa fa-file-csv"></i></div><h2>File I/O</h2></div>
+  <div class="repl">
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
+    <div class="repl-body">
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df = pd.<span class="fn">read_csv</span>(<span class="st">'data.csv'</span>)</span></div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df.<span class="fn">to_csv</span>(<span class="st">'out.csv'</span>, index=<span class="kw">False</span>)</span></div>
+      <div class="out"># Saved successfully without the index column</div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df = pd.<span class="fn">read_excel</span>(<span class="st">'data.xlsx'</span>, sheet_name=<span class="st">'Sheet1'</span>)</span></div></div>
+    </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><span class="hl">read_csv</span> / <span class="hl">to_csv</span>: Most common for plain text data.</li>
+      <li><span class="hl">read_excel</span> / <span class="hl">to_excel</span>: Requires <span class="hl">openpyxl</span> or <span class="hl">xlsxwriter</span>.</li>
+      <li><span class="hl">read_sql</span>: Directly query databases into DataFrames.</li>
+    </ul>
+    <div class="note-line"><i class="fa fa-exclamation-triangle"></i> Always use <code>index=False</code> when saving to CSV unless you explicitly want the row numbers saved as a column.</div>
+  </div>
+</section>
+
+<!-- ══ TRANSFORMATION ══ -->
+<section id="transform">
+  <div class="sec-head"><div class="sec-icon ir"><i class="fa fa-magic"></i></div><h2>Data Transformation</h2></div>
+  <div class="repl">
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
+    <div class="repl-body">
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df[<span class="st">'Score'</span>].<span class="fn">apply</span>(<span class="kw">lambda</span> x: x + <span class="nm">5</span>)</span></div>
+      <div class="out">0    93.5
+1    97.0
+2    90.0
+Name: Score, dtype: float64</div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">df[<span class="st">'Name'</span>].<span class="fn">map</span>({<span class="st">'Anna'</span>: <span class="st">'A+'</span>, <span class="st">'Bob'</span>: <span class="st">'B'</span>})</span></div>
+      <div class="out">0     A+
+1      B
+2    NaN
+Name: Name, dtype: object</div></div>
+    </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <ul>
+      <li><span class="hl">apply()</span>: Runs a function along an axis of the DataFrame (or on a Series). Extremely flexible.</li>
+      <li><span class="hl">map()</span>: Used for substituting each value in a Series with another value.</li>
+      <li><span class="hl">applymap()</span>: (Now <span class="hl">map()</span> in newer versions) Applies a function to every single element in a DataFrame.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ TIME SERIES ══ -->
+<section id="timeseries">
+  <div class="sec-head"><div class="sec-icon ip"><i class="fa fa-clock"></i></div><h2>Time Series</h2></div>
+  <div class="repl">
+    <div class="repl-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="repl-lang">python</span></div>
+    <div class="repl-body">
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">dates = pd.<span class="fn">date_range</span>(<span class="st">'20240101'</span>, <span class="at">periods</span>=<span class="nm">6</span>)</span></div></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">ts = pd.<span class="fn">Series</span>(np.random.<span class="fn">randn</span>(<span class="nm">6</span>), <span class="at">index</span>=dates)</span></div></div>
+      <div class="stmt-gap"></div>
+      <div class="stmt"><div class="stmt-code"><span class="prompt">&gt;&gt;&gt;</span><span class="line">ts.<span class="fn">resample</span>(<span class="st">'2D'</span>).<span class="fn">sum</span>()</span></div>
+      <div class="out">2024-01-01   -1.234
+2024-01-03    0.567
+2024-01-05    1.890
+Freq: 2D, dtype: float64</div></div>
+    </div>
+  </div>
+  <button class="exp-toggle" onclick="toggleExp(this)"><i class="fa fa-chevron-right arrow"></i> Explain</button>
+  <div class="exp-panel">
+    <p>Pandas has simple, powerful, and efficient functionality for performing resampling operations during frequency conversion (e.g., converting second data into 5-minute data).</p>
+    <ul>
+      <li><span class="hl">date_range</span>: Generates a fixed frequency DatetimeIndex.</li>
+      <li><span class="hl">resample</span>: Essential for frequency conversion and time-series aggregation.</li>
+      <li><span class="hl">tz_localize</span>: Handles time zone information.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+</div>
+<footer>
+  <span>pd.notes &mdash; Pandas 2.2 / 2.x &mdash; <code>import pandas as pd</code></span>
+  <span>Built for study &amp; reference</span>
+</footer>
+<a href="#intro" id="top"><i class="fa fa-arrow-up"></i></a>
+
+<script>
+  /* ── back to top ── */
+  window.addEventListener('scroll', () => {
+    document.getElementById('top').classList.toggle('show', window.scrollY > 400);
+  });
+
+  /* ── active sidebar ── */
+  const secs = document.querySelectorAll('section, .hero');
+  const links = document.querySelectorAll('aside a');
+  secs.forEach(s => new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(a => a.classList.remove('active'));
+        const l = document.querySelector(`aside a[href="#${e.target.id}"]`);
+        if (l) {
+          l.classList.add('active');
+          l.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' }).observe(s));
+
+  /* ── per-block toggle ── */
+  function toggleExp(btn) {
+    const panel = btn.nextElementSibling;
+    const open = panel.classList.toggle('open');
+    btn.classList.toggle('open', open);
+  }
+
+  /* ── global toggle ── */
+  let allOpen = false;
+  function toggleAll() {
+    allOpen = !allOpen;
+    document.querySelectorAll('.exp-panel').forEach(p => p.classList.toggle('open', allOpen));
+    document.querySelectorAll('.exp-toggle').forEach(b => b.classList.toggle('open', allOpen));
+    const gt = document.getElementById('globalToggle');
+    gt.classList.toggle('all-open', allOpen);
+    document.getElementById('globalLabel').textContent = allOpen ? 'Hide all explanations' : 'Show all explanations';
+  }
+
+  /* ── search ── */
+  document.getElementById('q').addEventListener('input', function () {
+    const q = this.value.trim().toLowerCase();
+    document.querySelectorAll('section, .hero').forEach(s => {
+      s.style.display = !q || s.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>
