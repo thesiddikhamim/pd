@@ -236,12 +236,35 @@ footer { border-top:1px solid var(--border); padding:1.4rem 3rem; color:var(--mu
 #top.show { opacity:1; pointer-events:all; }
 #top:hover { color:var(--accent); border-color:var(--accent); }
 
+.menu-toggle { display:none; background:none; border:none; color:var(--text); font-size:1.1rem; cursor:pointer; padding:0; }
+.menu-toggle:hover { color:var(--accent); }
+
 @media(max-width:900px){
-  .container{grid-template-columns:1fr;} aside{display:none;}
-  main{padding:1.4rem;} .two{grid-template-columns:1fr;} .hero h1{font-size:2rem;}
+  .menu-toggle { display:block; }
+  .container{grid-template-columns:1fr;} 
+  aside {
+    display:block; position:fixed; left:-280px; width:256px; z-index:1001;
+    transition:left 0.3s ease; box-shadow:5px 0 15px rgba(0,0,0,0.5);
+  }
+  aside.open { left:0; }
+  main{padding:1.5rem;} .two{grid-template-columns:1fr;} .hero h1{font-size:2.2rem;}
+  header { padding: 0 1.5rem; gap: 1rem; }
+}
+@media(max-width:600px){
+  header { padding: 0 1rem; gap: .5rem; }
+  #globalLabel, .ver-badge { display: none; }
+  .global-toggle { padding: .3rem .5rem; }
+  .logo { font-size: .9rem; }
+  .search-wrap input { font-size: .75rem; padding: .35rem .7rem .35rem 1.8rem; }
+  main { padding: 1.2rem 1rem; }
+  .hero h1 { font-size: 1.8rem; }
+  .repl-body { overflow-x: auto; }
+  .out { overflow-x: auto; padding-left: 1.2rem; }
+  .stmt-code .prompt { padding-left: .6rem; }
 }
 </style>
 </head><header>
+  <button id="menuToggle" class="menu-toggle"><i class="fa fa-bars"></i></button>
   <div class="logo">pd<span>.</span>notes</div>
   <div class="search-wrap">
     <i class="fa fa-search"></i>
@@ -691,6 +714,24 @@ Freq: 2D, dtype: float64</div></div>
 <a href="#intro" id="top"><i class="fa fa-arrow-up"></i></a>
 
 <script>
+  /* ── sidebar toggle ── */
+  const menuToggle = document.getElementById('menuToggle');
+  const sidebar = document.querySelector('aside');
+  menuToggle?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    sidebar.classList.toggle('open');
+  });
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 900 && sidebar.classList.contains('open') && !sidebar.contains(e.target)) {
+      sidebar.classList.remove('open');
+    }
+  });
+  document.querySelectorAll('aside a').forEach(a => {
+    a.addEventListener('click', () => {
+      if (window.innerWidth <= 900) sidebar.classList.remove('open');
+    });
+  });
+
   /* ── back to top ── */
   window.addEventListener('scroll', () => {
     document.getElementById('top').classList.toggle('show', window.scrollY > 400);
